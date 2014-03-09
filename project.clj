@@ -40,6 +40,8 @@
             ;; :force-dex-optimize true
 
             :target-version "19"
+            :use-google-api true
+            :support-libraries ["v4"]
             :external-classes-paths ["C:\\adt-bundle-windows-x86_64-20131030\\sdk\\extras\\google\\google_play_services\\libproject\\google-play-services_lib\\libs\\google-play-services.jar"]
             :external-res-paths ["C:\\adt-bundle-windows-x86_64-20131030\\sdk\\extras\\google\\google_play_services\\libproject\\google-play-services_lib\\res"]
             :aot-exclude-ns ["clojure.parallel" "clojure.core.reducers"]})
