@@ -2,8 +2,10 @@
   (:use [neko.activity :only [defactivity set-content-view!]]
         [neko.threading :only [on-ui post]]
         [neko.ui :only [make-ui]]
-        [neko.notify :only [toast fire notification]]
-        [neko.log :as log])
+        [neko.notify :as n :only [toast notification]]
+        [neko.log :as log]
+        [neko.ui.traits :only [deftrait]]
+        [neko.ui.mapping :only [add-trait!]])
   (:import com.google.android.gms.common.GooglePlayServicesUtil
            com.google.android.gms.gcm.GoogleCloudMessaging
            android.view.View
@@ -29,13 +31,17 @@
   (let [gcm (GoogleCloudMessaging/getInstance context)]
     (.register gcm (into-array String [sender-id]))))
 
-(def ui (make-ui [:linear-layout {:id-holder true}
-                  [:text-view {:text "Hello from Clojure!!!"}]
-                  [:button {:text "show id"
-                            :on-click (fn [w]
-                                        (let [tb (::regid-txt (.getTag ui))]
-                                          (.setText tb @regid)))}]
-                  [:edit-text {:id ::regid-txt}]]))
+(deftrait :ref-text [^android.widget.TextView wdg {:keys [ref-text]}]
+  (add-watch ref-text nil
+             (fn [_ _ o n] (post wdg (.setText wdg n)))))
+
+(add-trait! :edit-text :ref-text)
+
+(declare ^android.widget.EditText et)
+
+(def ui [:linear-layout {:id-holder true}
+         [:text-view {:text "Hello from Clojure!!!"}]
+         [:edit-text {:text "ugg" :ref-text regid}]])
 
 (defn register-in-background [context]
   (on-background
@@ -47,6 +53,6 @@
   :def a
   :on-create
   (fn [this bundle]
-    (register-in-background this)
+    ;(register-in-background this)
     (on-ui
-     (set-content-view! a ui))))
+     (set-content-view! a (make-ui ui)))))
