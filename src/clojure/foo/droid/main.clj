@@ -1,4 +1,5 @@
 (ns foo.droid.main
+  (:require [neko.resource :as res])
   (:use [neko.activity :only [defactivity set-content-view!]]
         [neko.threading :only [on-ui post]]
         [neko.ui :only [make-ui]]
@@ -9,6 +10,7 @@
   (:import com.google.android.gms.common.GooglePlayServicesUtil
            com.google.android.gms.gcm.GoogleCloudMessaging
            android.view.View
+           android.widget.TextView
            android.os.AsyncTask
            java.lang.Thread))
 
@@ -31,17 +33,10 @@
   (let [gcm (GoogleCloudMessaging/getInstance context)]
     (.register gcm (into-array String [sender-id]))))
 
-(deftrait :ref-text [^android.widget.TextView wdg {:keys [ref-text]}]
-  (add-watch ref-text nil
-             (fn [_ _ o n] (post wdg (.setText wdg n)))))
+(def ui [:linear-layout {}])
 
-(add-trait! :edit-text :ref-text)
-
-(declare ^android.widget.EditText et)
-
-(def ui [:linear-layout {:id-holder true}
-         [:text-view {:text "Hello from Clojure!!!"}]
-         [:edit-text {:text "ugg" :ref-text regid}]])
+(def ui2 [:linear-layout {:id-holder true}
+         [:edit-text {:text regid :text-size}]])
 
 (defn register-in-background [context]
   (on-background
